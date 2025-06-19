@@ -18,24 +18,35 @@ export default function Home() {
     });
   }, []);
 
-  const onChange = (e) => {
-    const searchTerm = e.target.value;
+  useEffect(() => {
+    const handler = setTimeout(() => {
+      const searchTermElement = document.getElementById("search-term");
+      if (searchTermElement) {
+        searchTermElement.innerHTML = searchTerm;
+      }
+      if (!searchTerm) {
+        setFilteredAdvocates(advocates);
+        return;
+      }
+      console.log("filtering advocates...");
+      const filtered = advocates.filter((advocate) => {
+        return (
+          advocate.firstName?.toLowerCase()?.includes(searchTerm.toLowerCase()) ||
+          advocate.lastName?.toLowerCase()?.includes(searchTerm.toLowerCase()) ||
+          advocate.city?.toLowerCase()?.includes(searchTerm.toLowerCase()) ||
+          advocate.phoneNumber?.toString()?.includes(searchTerm.toLowerCase()) ||
+          advocate.degree?.toLowerCase()?.includes(searchTerm.toLowerCase()) ||
+          advocate.specialties?.find(specialty => specialty.toLowerCase().includes(searchTerm.toLowerCase())) ||
+          (searchTerm !== "" && !isNaN(Number(searchTerm)) && advocate.yearsOfExperience === Number(searchTerm))
+        );
+      });
+      setFilteredAdvocates(filtered);
+    }, 300);
+    return () => clearTimeout(handler);
+  }, [searchTerm, advocates]);
 
-    document.getElementById("search-term").innerHTML = searchTerm;
-
-    console.log("filtering advocates...");
-    const filteredAdvocates = advocates.filter((advocate) => {
-      return (
-        advocate.firstName.includes(searchTerm) ||
-        advocate.lastName.includes(searchTerm) ||
-        advocate.city.includes(searchTerm) ||
-        advocate.degree.includes(searchTerm) ||
-        advocate.specialties.includes(searchTerm) ||
-        advocate.yearsOfExperience.includes(searchTerm)
-      );
-    });
-
-    setFilteredAdvocates(filteredAdvocates);
+  const onChange = (e: { target: { value: any; }; }) => {
+    setSearchTerm(e.target.value);
   };
 
   const onClick = () => {
@@ -69,7 +80,7 @@ export default function Home() {
           <th>Phone Number</th>
         </thead>
         <tbody>
-          {filteredAdvocates.map((advocate) => {
+          {filteredAdvocates?.map((advocate) => {
             return (
               <tr>
                 <td>{advocate.firstName}</td>
