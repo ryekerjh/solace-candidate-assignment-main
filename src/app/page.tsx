@@ -3,10 +3,20 @@
 import { useEffect, useState } from "react";
 import { Advocate } from "./api/types";
 
+// Utility to format US phone numbers as (XXX) XXX-XXXX
+function formatPhoneNumber(phone: string | number) {
+  const digits = phone.toString().replace(/\D/g, "");
+  if (digits.length === 10) {
+    return `(${digits.slice(0,3)}) ${digits.slice(3,6)}-${digits.slice(6)}`;
+  }
+  return phone;
+}
+
 export default function Home() {
   const [advocates, setAdvocates] = useState<Advocate[]>([]);
   const [filteredAdvocates, setFilteredAdvocates] = useState<Advocate[]>([]);
   const [searchTerm, setSearchTerm] = useState("");
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     console.log("fetching advocates...");
@@ -14,6 +24,7 @@ export default function Home() {
       response.json().then((jsonResponse) => {
         setAdvocates(jsonResponse.data);
         setFilteredAdvocates(jsonResponse.data);
+        setLoading(false);
       });
     });
   }, []);
